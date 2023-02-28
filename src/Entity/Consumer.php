@@ -1,11 +1,22 @@
 <?php
 
+declare(strict_types=1);
+
+/*
+ * This file is part of Bilemo
+ *
+ * (c)
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace App\Entity;
 
 use App\Repository\ConsumerRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass:ConsumerRepository::class)]
+#[ORM\Entity(repositoryClass: ConsumerRepository::class)]
 class Consumer
 {
     #[ORM\Id]
@@ -22,7 +33,6 @@ class Consumer
     #[ORM\ManyToOne(inversedBy: 'consumers')]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
-    
 
     public function getId(): ?int
     {
@@ -64,6 +74,4 @@ class Consumer
 
         return $this;
     }
-
-    
 }
