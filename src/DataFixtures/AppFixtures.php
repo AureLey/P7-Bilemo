@@ -13,9 +13,9 @@ declare(strict_types=1);
 
 namespace App\DataFixtures;
 
-use App\Entity\Client;
-use App\Entity\Product;
 use App\Entity\User;
+use App\Entity\Product;
+use App\Entity\Consumer;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -42,23 +42,22 @@ class AppFixtures extends Fixture
         }
         // -------------------------------------------------
 
-        // Creation of Clients
+        // Creation of Users
         for ($i = 0; $i < 4; ++$i) {
-            $client = new Client();
-            $client->setUsername('client'.$i);
-            $client->setemail('client'.$i.'@gmail.com');
-            $client->setPassword($this->userPasswordHasher->hashPassword($client, 'client'.$i));
-            $client->setRoles(["ROLE_USER"]);
-            $manager->persist($client);
+            $user = new User();            
+            $user->setemail('user'.$i.'@gmail.com');            
+            $user->setPassword($this->userPasswordHasher->hashPassword($user, 'user'.$i));
+            $user->setRoles(["ROLE_USER"]);
+            $manager->persist($user);
 
-            // Creations of Users
-            $nbUsers = rand(4, 9);
-            for ($j = 0; $j < $nbUsers; ++$j) {
-                $user = new User();
-                $user->setFirstname('userFirstname'.$j);
-                $user->setLastname('userLastname'.$j);
-                $user->setClient($client);
-                $manager->persist($user);
+            // Creations of Consumers
+            $nbConsumers = rand(4, 9);
+            for ($j = 0; $j < $nbConsumers; ++$j) {
+                $consumer = new Consumer();
+                $consumer->setFirstname('userFirstname'.$j);
+                $consumer->setLastname('userLastname'.$j);
+                $consumer->setUser($user);
+                $manager->persist($consumer);
             }
         }        
 
