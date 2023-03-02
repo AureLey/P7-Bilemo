@@ -27,11 +27,11 @@ class Product
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Assert\NotBlank(message: "Le nom du téléphone est obligatoire")]
+    #[Assert\NotBlank(message: 'Le nom du téléphone est obligatoire')]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::TEXT)]
-    #[Assert\NotBlank(message: "La description est obligatoire")]
+    #[Assert\NotBlank(message: 'La description est obligatoire')]
     private ?string $description = null;
 
     #[ORM\Column]
