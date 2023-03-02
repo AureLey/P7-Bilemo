@@ -16,6 +16,7 @@ namespace App\Entity;
 use App\Repository\ConsumerRepository;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ConsumerRepository::class)]
 class Consumer
@@ -28,10 +29,14 @@ class Consumer
 
     #[ORM\Column(length: 255)]
     #[Groups(['getConsumers'])]
+    #[Assert\NotBlank(message:"firstname is necessary")]
+    #[Assert\Length(min: 6, max: 255, minMessage:"First name must be a minimum of 6 for length",maxMessage:"First name must be 255 maximum for length")]
     private ?string $firstname = null;
 
     #[ORM\Column(length: 255)]
     #[Groups(['getConsumers'])]
+    #[Assert\NotBlank(message:"Lastname is necessary")]
+    #[Assert\Length(min: 6, max: 255, minMessage:"Lastname must be a minimum of 6 for length",maxMessage:"Lastname must be 255 maximum for length")]
     private ?string $lastname = null;
 
     #[ORM\ManyToOne(inversedBy: 'consumers')]
