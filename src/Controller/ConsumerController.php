@@ -19,7 +19,6 @@ use Doctrine\ORM\EntityManagerInterface;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -30,10 +29,10 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class ConsumerController extends AbstractController
 {
-    #[Route('api/consumers', name: 'app_allConsumers', methods: ['GET'])]    
+    #[Route('api/consumers', name: 'app_allConsumers', methods: ['GET'])]
     public function getConsumers(ConsumerRepository $repoConsumer, SerializerInterface $serializer): JsonResponse
     {
-        $consumerList = $repoConsumer->findBy(['user' => $this->getUser()]);        
+        $consumerList = $repoConsumer->findBy(['user' => $this->getUser()]);
         $context = SerializationContext::create()->setGroups(['getConsumers']);
         $jsonConsumerList = $serializer->serialize($consumerList, 'json', $context);
 
@@ -64,7 +63,7 @@ class ConsumerController extends AbstractController
         $currentConsumer->setLastname($newConsumer->getLastname())
                         ->setFirstname($newConsumer->getFirstname());
 
-        // Checking errors 
+        // Checking errors
         $errors = $validator->validate($currentConsumer);
         if ($errors->count() > 0) {
             return new JsonResponse($serializer->serialize($errors, 'json'), JsonResponse::HTTP_BAD_REQUEST, [], true);
@@ -100,7 +99,7 @@ class ConsumerController extends AbstractController
         $user = $this->getUser();
         $consumer->setUser($user);
 
-        // Checking errors 
+        // Checking errors
         $errors = $validator->validate($consumer);
         if ($errors->count() > 0) {
             return new JsonResponse($serializer->serialize($errors, 'json'), JsonResponse::HTTP_BAD_REQUEST, [], true);
