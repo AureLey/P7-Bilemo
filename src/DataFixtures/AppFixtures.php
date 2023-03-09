@@ -13,11 +13,11 @@ declare(strict_types=1);
 
 namespace App\DataFixtures;
 
-use App\Entity\Consumer;
-use App\Entity\Product;
 use App\Entity\User;
-use Doctrine\Bundle\FixturesBundle\Fixture;
+use App\Entity\Product;
+use App\Entity\Consumer;
 use Doctrine\Persistence\ObjectManager;
+use Doctrine\Bundle\FixturesBundle\Fixture;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class AppFixtures extends Fixture
@@ -53,10 +53,12 @@ class AppFixtures extends Fixture
             // Creations of Consumers
             $nbConsumers = rand(4, 9);
             for ($j = 0; $j < $nbConsumers; ++$j) {
-                $consumer = new Consumer();
-                $consumer->setFirstname('userFirstname'.$j);
-                $consumer->setLastname('userLastname'.$j);
-                $consumer->setUser($user);
+                $consumer = new Consumer();                
+                $consumer->setFirstname('userFirstname'.$j)
+                         ->setLastname('userLastname'.$j)
+                         ->setUser($user);                        
+
+                
                 $manager->persist($consumer);
             }
         }

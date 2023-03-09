@@ -14,7 +14,9 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use App\Repository\ConsumerRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
 use JMS\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -43,6 +45,20 @@ class Consumer
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(['getConsumers'])]
     private ?User $user = null;
+
+    /**
+     * @var \DateTime
+     */
+    #[Gedmo\Timestampable(on: 'create')]
+    #[ORM\Column(name: 'created', type: Types::DATETIME_MUTABLE)]
+    private ?\DateTimeInterface $createdAt;
+
+    /**
+     * @var \DateTime
+     */
+    #[Gedmo\Timestampable(on: 'update')]
+    #[ORM\Column(name: 'updated', type: Types::DATETIME_MUTABLE,nullable: true)]    
+    private ?\DateTimeInterface $updatedAt;
 
     public function getId(): ?int
     {
@@ -83,5 +99,5 @@ class Consumer
         $this->user = $user;
 
         return $this;
-    }
+    }    
 }
