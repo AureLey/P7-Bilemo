@@ -24,6 +24,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
+
 class ProductController extends AbstractController
 {
     #[Route('api/products', name: 'app_allProduct', methods: ['GET'])]
