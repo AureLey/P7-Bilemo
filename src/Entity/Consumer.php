@@ -42,7 +42,7 @@ class Consumer
     private ?string $lastname = null;
 
     #[ORM\ManyToOne(inversedBy: 'consumers')]
-    #[ORM\JoinColumn(nullable: false)]    
+    #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
 
     /**
@@ -56,7 +56,7 @@ class Consumer
      * @var \DateTime
      */
     #[Gedmo\Timestampable(on: 'update')]
-    #[ORM\Column(name: 'updated', type: Types::DATETIME_MUTABLE,nullable: true)]    
+    #[ORM\Column(name: 'updated', type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $updatedAt;
 
     public function getId(): ?int
@@ -98,5 +98,5 @@ class Consumer
         $this->user = $user;
 
         return $this;
-    }    
+    }
 }

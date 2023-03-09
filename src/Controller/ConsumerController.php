@@ -15,19 +15,19 @@ namespace App\Controller;
 
 use App\Entity\Consumer;
 use App\Repository\ConsumerRepository;
-use JMS\Serializer\SerializerInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use JMS\Serializer\SerializationContext;
+use JMS\Serializer\SerializerInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Contracts\Cache\TagAwareCacheInterface;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Cache\ItemInterface;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 class ConsumerController extends AbstractController
 {
@@ -35,32 +35,24 @@ class ConsumerController extends AbstractController
      * getConsumers return all Consumers to the Client/User, FindBy( User_id).
      */
     #[Route('api/consumers', name: 'app_allConsumers', methods: ['GET'])]
-<<<<<<< Updated upstream
-    public function getConsumers(ConsumerRepository $repoConsumer, SerializerInterface $serializer): JsonResponse
-    {
-        // Get all consumers from the logged User
-        $consumerList = $repoConsumer->findBy(['user' => $this->getUser()]);
-=======
     public function getConsumers(
-        Request $request, 
-        ConsumerRepository $repoConsumer, 
+        Request $request,
+        ConsumerRepository $repoConsumer,
         SerializerInterface $serializer,
         TagAwareCacheInterface $cachePool): JsonResponse
     {
-        $page = $request->get('page',1);
+        $page = $request->get('page', 1);
         $limit = $request->get('limit', 3);
 
-        $idCache = "getConsumers-".$page."-".$limit;
-        $consumerList = $cachePool->get($idCache, function(ItemInterface $item) use($repoConsumer, $page, $limit){
+        $idCache = 'getConsumers-'.$page.'-'.$limit;
+        $consumerList = $cachePool->get($idCache, function (ItemInterface $item) use ($repoConsumer, $page, $limit) {
             // DEBUG
-            echo ("N'est pas dans le cache");
-            $item->tag("consumersCache");
+            echo "N'est pas dans le cache";
+            $item->tag('consumersCache');
             // Get all consumers from the logged User
-            return $repoConsumer->findAllWithPagination($this->getUser(),$page,$limit);
+            return $repoConsumer->findAllWithPagination($this->getUser(), $page, $limit);
         });
-                
-        
->>>>>>> Stashed changes
+
         // Create a group to cancel circule errors and get User in Consumer
         $context = SerializationContext::create()->setGroups(['getConsumers']);
         $jsonConsumerList = $serializer->serialize($consumerList, 'json', $context);
@@ -96,7 +88,7 @@ class ConsumerController extends AbstractController
         TagAwareCacheInterface $cache): JsonResponse
     {
         // Clear cache to refresh data about this modification
-        $cache->invalidateTags(["consumersCache"]);
+        $cache->invalidateTags(['consumersCache']);
         // Create newConsummer with new values
         $newConsumer = $serializer->deserialize($request->getContent(), Consumer::class, 'json');
 
@@ -128,7 +120,7 @@ class ConsumerController extends AbstractController
     #[Security("is_granted('DELETE', consumer)", statusCode: 403, message: 'Forbidden-Resource not found.')]
     public function deleteConsumer(Consumer $consumer, EntityManagerInterface $entityManager, TagAwareCacheInterface $cache): JsonResponse
     {
-        $cache->invalidateTags(["consumersCache"]);
+        $cache->invalidateTags(['consumersCache']);
         // EntityManager
         $entityManager->remove($consumer);
         $entityManager->flush();
