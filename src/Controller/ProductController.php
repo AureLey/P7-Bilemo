@@ -25,8 +25,13 @@ use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 class ProductController extends AbstractController
-{
-    #[Route('api/products', name: 'app_allProduct', methods: ['GET'])]
+{   
+    
+    /**
+     * GET ALL - getProducts     
+     */
+    #[Route('api/products', name: 'app_allProduct', methods: ['GET'])]    
+    
     public function getProducts(
         Request $request,
         ProductRepository $repoProduct,
@@ -51,7 +56,10 @@ class ProductController extends AbstractController
         return new JsonResponse($jsonProductList, Response::HTTP_OK, [], true);
     }
 
-    #[Route('api/products/{id}', name: 'app_detailProduct', methods: ['GET'])]
+    /**
+     * GET - getDetailProduct    
+     */
+    #[Route('api/products/{id}', name: 'app_detailProduct', methods: ['GET'])]  
     public function getDetailProduct(Product $product, SerializerInterface $serializer): JsonResponse
     {
         $jsonProduct = $serializer->serialize($product, 'json');

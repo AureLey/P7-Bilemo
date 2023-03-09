@@ -32,7 +32,7 @@ use Symfony\Contracts\Cache\TagAwareCacheInterface;
 class ConsumerController extends AbstractController
 {
     /**
-     * getConsumers return all Consumers to the Client/User, FindBy( User_id).
+     * GET ALL - getConsumers return all Consumers to the Client/User, FindBy( User_id).
      */
     #[Route('api/consumers', name: 'app_allConsumers', methods: ['GET'])]
     public function getConsumers(
@@ -61,7 +61,7 @@ class ConsumerController extends AbstractController
     }
 
     /**
-     * getDetailConsumer return one Consumer informations, control by is_granted and Voter.
+     *  SHOW - getDetailConsumer return one Consumer informations, control by is_granted and Voter.
      */
     #[Route('api/consumers/{id}', name: 'app_detailConsumer', methods: ['GET'])]
     #[Security("is_granted('VIEW', consumer)", statusCode: 403, message: 'Forbidden-Resource not found.')]
@@ -75,7 +75,7 @@ class ConsumerController extends AbstractController
     }
 
     /**
-     * updateConsumer. modified Consumer informations, control by is_granted and Voter.
+     * UPDATE - updateConsumer. modified Consumer informations, control by is_granted and Voter.
      */
     #[Route('api/consumers/{id}', name: 'app_updateConsumer', methods: ['PATCH', 'PUT'])]
     #[Security("is_granted('EDIT', currentConsumer)", statusCode: 403, message: 'Forbidden-Resource not found.')]
@@ -114,7 +114,7 @@ class ConsumerController extends AbstractController
     }
 
     /**
-     * deleteConsumer. Delete one Consumer from User, control by is_granted and Voter.
+     * DELETE - deleteConsumer. Delete one Consumer from User, control by is_granted and Voter.
      */
     #[Route('api/consumers/{id}', name: 'app_deleteConsumer', methods: ['DELETE'])]
     #[Security("is_granted('DELETE', consumer)", statusCode: 403, message: 'Forbidden-Resource not found.')]
@@ -129,7 +129,7 @@ class ConsumerController extends AbstractController
     }
 
     /**
-     * creationConsumer. Create one Consumer, control by is_granted and Voter.
+     * POST - creationConsumer. Create one Consumer, control by is_granted and Voter.
      */
     #[Route('api/consumers', name: 'app_creationConsumer', methods: ['POST'])]
     public function creationConsumer(
