@@ -18,15 +18,45 @@ use App\Repository\ProductRepository;
 use JMS\Serializer\SerializerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+<<<<<<< Updated upstream
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+=======
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\Cache\ItemInterface;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
+>>>>>>> Stashed changes
 
 class ProductController extends AbstractController
 {
     #[Route('api/products', name: 'app_allProduct', methods: ['GET'])]
+<<<<<<< Updated upstream
     public function getProducts(ProductRepository $repoProduct, SerializerInterface $serializer): JsonResponse
     {
         $productList = $repoProduct->findAll();
+=======
+    public function getProducts(
+        Request $request,
+        ProductRepository $repoProduct,
+        SerializerInterface $serializer,
+        TagAwareCacheInterface $cachePool): JsonResponse
+    {
+        // Set params for pagination
+        $page = $request->get('page', 1);
+        $limit = $request->get('limit', 3);       
+
+        $idCache = 'getProducts-'.$page.'-'.$limit;
+        $productList = $cachePool->get($idCache, function (ItemInterface $item) use ($repoProduct, $page, $limit) {
+            // DEBUG
+            echo "N'est pas dans le cache";            
+            $item->tag('productsCache');
+            // Get all products 
+            return $repoProduct->findAllWithPagination($page, $limit);
+        });
+
+>>>>>>> Stashed changes
         $jsonProductList = $serializer->serialize($productList, 'json');
 
         return new JsonResponse($jsonProductList, Response::HTTP_OK, [], true);

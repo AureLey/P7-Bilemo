@@ -42,8 +42,7 @@ class Consumer
     private ?string $lastname = null;
 
     #[ORM\ManyToOne(inversedBy: 'consumers')]
-    #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['getConsumers'])]
+    #[ORM\JoinColumn(nullable: false)]    
     private ?User $user = null;
 
     /**
