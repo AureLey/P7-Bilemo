@@ -50,28 +50,18 @@ class ConsumerRepository extends ServiceEntityRepository
         }
     }
 
-//    /**
-//     * @return Consumer[] Returns an array of Consumer objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('u')
-//            ->andWhere('u.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('u.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
+    public function findAllWithPagination($idUser, $page, $limit):Array
+    {
+        // Create Query and make a request with params
 
-//    public function findOneBySomeField($value): ?Consumer
-//    {
-//        return $this->createQueryBuilder('u')
-//            ->andWhere('u.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
+        $qb = $this->getEntityManager()->createQueryBuilder()
+            ->select('c')
+            ->from('App\Entity\Consumer', 'c')
+            ->where('c.user = ?1')
+            ->setParameter('1', $idUser)
+            ->setFirstResult(($page - 1) * $limit)
+            ->setMaxResults($limit);
+
+        return $qb->getQuery()->getResult();
+    }
 }

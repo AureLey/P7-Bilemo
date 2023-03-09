@@ -33,10 +33,12 @@ class ConsumerController extends AbstractController
      * getConsumers return all Consumers to the Client/User, FindBy( User_id).
      */
     #[Route('api/consumers', name: 'app_allConsumers', methods: ['GET'])]
-    public function getConsumers(ConsumerRepository $repoConsumer, SerializerInterface $serializer): JsonResponse
+    public function getConsumers(Request $request, ConsumerRepository $repoConsumer, SerializerInterface $serializer): JsonResponse
     {
-        // Get all consumers from the logged User
-        $consumerList = $repoConsumer->findBy(['user' => $this->getUser()]);
+        $page = $request->get('page',1);
+        $limit = $request->get('limit', 3);
+        // Get all consumers from the logged User        
+        $consumerList = $repoConsumer->findAllWithPagination($this->getUser(),$page,$limit);
         // Create a group to cancel circule errors and get User in Consumer
         $context = SerializationContext::create()->setGroups(['getConsumers']);
         $jsonConsumerList = $serializer->serialize($consumerList, 'json', $context);
