@@ -43,7 +43,7 @@ class Consumer
 
     #[ORM\ManyToOne(inversedBy: 'consumers')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?User $user = null;
+    private ?CustomerUser $user = null;
 
     /**
      * @var \DateTime
@@ -88,12 +88,12 @@ class Consumer
         return $this;
     }
 
-    public function getUser(): ?User
+    public function getUser(): ?CustomerUser
     {
         return $this->user;
     }
 
-    public function setUser(?User $user): self
+    public function setUser(?CustomerUser $user): self
     {
         $this->user = $user;
 

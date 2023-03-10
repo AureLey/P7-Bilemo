@@ -46,8 +46,6 @@ class ConsumerController extends AbstractController
 
         $idCache = 'getConsumers-'.$page.'-'.$limit;
         $consumerList = $cachePool->get($idCache, function (ItemInterface $item) use ($repoConsumer, $page, $limit) {
-            // DEBUG
-            echo "N'est pas dans le cache";
             $item->tag('consumersCache');
             // Get all consumers from the logged User
             return $repoConsumer->findAllWithPagination($this->getUser(), $page, $limit);

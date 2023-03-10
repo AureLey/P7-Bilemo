@@ -15,7 +15,7 @@ namespace App\DataFixtures;
 
 use App\Entity\Consumer;
 use App\Entity\Product;
-use App\Entity\User;
+use App\Entity\CustomerUser;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -44,7 +44,7 @@ class AppFixtures extends Fixture
 
         // Creation of Users
         for ($i = 0; $i < 4; ++$i) {
-            $user = new User();
+            $user = new CustomerUser();
             $user->setemail('user'.$i.'@gmail.com');
             $user->setPassword($this->userPasswordHasher->hashPassword($user, 'user'.$i));
             $user->setRoles(['ROLE_USER']);

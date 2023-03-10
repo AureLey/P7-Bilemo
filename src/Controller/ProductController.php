@@ -25,13 +25,11 @@ use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 class ProductController extends AbstractController
-{   
-    
+{
     /**
-     * GET ALL - getProducts     
+     * GET ALL - getProducts.
      */
-    #[Route('api/products', name: 'app_allProduct', methods: ['GET'])]    
-    
+    #[Route('api/products', name: 'app_allProduct', methods: ['GET'])]
     public function getProducts(
         Request $request,
         ProductRepository $repoProduct,
@@ -44,8 +42,6 @@ class ProductController extends AbstractController
 
         $idCache = 'getProducts-'.$page.'-'.$limit;
         $productList = $cachePool->get($idCache, function (ItemInterface $item) use ($repoProduct, $page, $limit) {
-            // DEBUG
-            echo "N'est pas dans le cache";
             $item->tag('productsCache');
             // Get all products
             return $repoProduct->findAllWithPagination($page, $limit);
@@ -57,9 +53,9 @@ class ProductController extends AbstractController
     }
 
     /**
-     * GET - getDetailProduct    
+     * GET - getDetailProduct.
      */
-    #[Route('api/products/{id}', name: 'app_detailProduct', methods: ['GET'])]  
+    #[Route('api/products/{id}', name: 'app_detailProduct', methods: ['GET'])]
     public function getDetailProduct(Product $product, SerializerInterface $serializer): JsonResponse
     {
         $jsonProduct = $serializer->serialize($product, 'json');
@@ -67,5 +63,3 @@ class ProductController extends AbstractController
         return new JsonResponse($jsonProduct, Response::HTTP_OK, [], true);
     }
 }
-
-
