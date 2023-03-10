@@ -16,28 +16,45 @@ namespace App\Controller;
 use App\Entity\Product;
 use App\Repository\ProductRepository;
 use JMS\Serializer\SerializerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Contracts\Cache\ItemInterface;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 class ProductController extends AbstractController
 {
+    /**
+     * GET ALL - getProducts.
+     */
     #[Route('api/products', name: 'app_allProduct', methods: ['GET'])]
-    public function getProducts(Request $request, ProductRepository $repoProduct, SerializerInterface $serializer): JsonResponse
+    public function getProducts(
+        Request $request,
+        ProductRepository $repoProduct,
+        SerializerInterface $serializer,
+        TagAwareCacheInterface $cachePool): JsonResponse
     {
         // Set params for pagination
-        $page = $request->get('page',1);
+        $page = $request->get('page', 1);
         $limit = $request->get('limit', 3);
-        //Call Custom function in repo with pagination
-        $productList = $repoProduct->findAllWithPagination($page,$limit);
-        
+
+        $idCache = 'getProducts-'.$page.'-'.$limit;
+        $productList = $cachePool->get($idCache, function (ItemInterface $item) use ($repoProduct, $page, $limit) {
+            $item->tag('productsCache');
+            // Get all products
+            return $repoProduct->findAllWithPagination($page, $limit);
+        });
+
         $jsonProductList = $serializer->serialize($productList, 'json');
 
         return new JsonResponse($jsonProductList, Response::HTTP_OK, [], true);
     }
 
+    /**
+     * GET - getDetailProduct.
+     */
     #[Route('api/products/{id}', name: 'app_detailProduct', methods: ['GET'])]
     public function getDetailProduct(Product $product, SerializerInterface $serializer): JsonResponse
     {

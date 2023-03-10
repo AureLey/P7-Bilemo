@@ -26,19 +26,31 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Contracts\Cache\ItemInterface;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 class ConsumerController extends AbstractController
 {
     /**
-     * getConsumers return all Consumers to the Client/User, FindBy( User_id).
+     * GET ALL - getConsumers return all Consumers to the Client/User, FindBy( User_id).
      */
     #[Route('api/consumers', name: 'app_allConsumers', methods: ['GET'])]
-    public function getConsumers(Request $request, ConsumerRepository $repoConsumer, SerializerInterface $serializer): JsonResponse
+    public function getConsumers(
+        Request $request,
+        ConsumerRepository $repoConsumer,
+        SerializerInterface $serializer,
+        TagAwareCacheInterface $cachePool): JsonResponse
     {
-        $page = $request->get('page',1);
+        $page = $request->get('page', 1);
         $limit = $request->get('limit', 3);
-        // Get all consumers from the logged User        
-        $consumerList = $repoConsumer->findAllWithPagination($this->getUser(),$page,$limit);
+
+        $idCache = 'getConsumers-'.$page.'-'.$limit;
+        $consumerList = $cachePool->get($idCache, function (ItemInterface $item) use ($repoConsumer, $page, $limit) {
+            $item->tag('consumersCache');
+            // Get all consumers from the logged User
+            return $repoConsumer->findAllWithPagination($this->getUser(), $page, $limit);
+        });
+
         // Create a group to cancel circule errors and get User in Consumer
         $context = SerializationContext::create()->setGroups(['getConsumers']);
         $jsonConsumerList = $serializer->serialize($consumerList, 'json', $context);
@@ -47,7 +59,7 @@ class ConsumerController extends AbstractController
     }
 
     /**
-     * getDetailConsumer return one Consumer informations, control by is_granted and Voter.
+     *  SHOW - getDetailConsumer return one Consumer informations, control by is_granted and Voter.
      */
     #[Route('api/consumers/{id}', name: 'app_detailConsumer', methods: ['GET'])]
     #[Security("is_granted('VIEW', consumer)", statusCode: 403, message: 'Forbidden-Resource not found.')]
@@ -61,7 +73,7 @@ class ConsumerController extends AbstractController
     }
 
     /**
-     * updateConsumer. modified Consumer informations, control by is_granted and Voter.
+     * UPDATE - updateConsumer. modified Consumer informations, control by is_granted and Voter.
      */
     #[Route('api/consumers/{id}', name: 'app_updateConsumer', methods: ['PATCH', 'PUT'])]
     #[Security("is_granted('EDIT', currentConsumer)", statusCode: 403, message: 'Forbidden-Resource not found.')]
@@ -70,8 +82,11 @@ class ConsumerController extends AbstractController
         Request $request,
         SerializerInterface $serializer,
         EntityManagerInterface $entityManager,
-        ValidatorInterface $validator): JsonResponse
+        ValidatorInterface $validator,
+        TagAwareCacheInterface $cache): JsonResponse
     {
+        // Clear cache to refresh data about this modification
+        $cache->invalidateTags(['consumersCache']);
         // Create newConsummer with new values
         $newConsumer = $serializer->deserialize($request->getContent(), Consumer::class, 'json');
 
@@ -97,12 +112,13 @@ class ConsumerController extends AbstractController
     }
 
     /**
-     * deleteConsumer. Delete one Consumer from User, control by is_granted and Voter.
+     * DELETE - deleteConsumer. Delete one Consumer from User, control by is_granted and Voter.
      */
     #[Route('api/consumers/{id}', name: 'app_deleteConsumer', methods: ['DELETE'])]
     #[Security("is_granted('DELETE', consumer)", statusCode: 403, message: 'Forbidden-Resource not found.')]
-    public function deleteConsumer(Consumer $consumer, EntityManagerInterface $entityManager): JsonResponse
+    public function deleteConsumer(Consumer $consumer, EntityManagerInterface $entityManager, TagAwareCacheInterface $cache): JsonResponse
     {
+        $cache->invalidateTags(['consumersCache']);
         // EntityManager
         $entityManager->remove($consumer);
         $entityManager->flush();
@@ -111,7 +127,7 @@ class ConsumerController extends AbstractController
     }
 
     /**
-     * creationConsumer. Create one Consumer, control by is_granted and Voter.
+     * POST - creationConsumer. Create one Consumer, control by is_granted and Voter.
      */
     #[Route('api/consumers', name: 'app_creationConsumer', methods: ['POST'])]
     public function creationConsumer(
