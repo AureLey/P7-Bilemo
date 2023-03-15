@@ -16,6 +16,8 @@ namespace App\Controller;
 use App\Entity\Consumer;
 use App\Repository\ConsumerRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Hateoas\Representation\CollectionRepresentation;
+use Hateoas\Representation\PaginatedRepresentation;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
@@ -28,8 +30,6 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
-use Hateoas\Representation\CollectionRepresentation;
-use Hateoas\Representation\PaginatedRepresentation;
 
 class ConsumerController extends AbstractController
 {
@@ -49,7 +49,7 @@ class ConsumerController extends AbstractController
         $idCache = 'getConsumers-'.$page.'-'.$limit;
         $listConsumer = $cachePool->get($idCache, function (ItemInterface $item) use ($repoConsumer) {
             $item->tag('consumersCache');
-            echo 'pas dans le cache'; //TEST DEBUG
+
             // Get all product from repository and
             return $repoConsumer->findAllById($this->getUser());
         });

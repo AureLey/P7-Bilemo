@@ -45,7 +45,7 @@ class ProductController extends AbstractController
         $idCache = 'getProducts-'.$page.'-'.$limit;
         $listProduct = $cachePool->get($idCache, function (ItemInterface $item) use ($repoProduct) {
             $item->tag('productsCache');
-            echo 'pas dans le cache'; //TEST DEBUG
+
             // Get all product from repository and
             return $repoProduct->findAll();
         });
