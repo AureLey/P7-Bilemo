@@ -16,6 +16,8 @@ namespace App\Controller;
 use App\Entity\Consumer;
 use App\Repository\ConsumerRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Hateoas\Representation\CollectionRepresentation;
+use Hateoas\Representation\PaginatedRepresentation;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
@@ -41,19 +43,41 @@ class ConsumerController extends AbstractController
         SerializerInterface $serializer,
         TagAwareCacheInterface $cachePool): JsonResponse
     {
-        $page = $request->get('page', 1);
-        $limit = $request->get('limit', 3);
+        $page = (int) $request->get('page', 1);
+        $limit = (int) $request->get('limit', 3);
 
         $idCache = 'getConsumers-'.$page.'-'.$limit;
-        $consumerList = $cachePool->get($idCache, function (ItemInterface $item) use ($repoConsumer, $page, $limit) {
+        $listConsumer = $cachePool->get($idCache, function (ItemInterface $item) use ($repoConsumer) {
             $item->tag('consumersCache');
-            // Get all consumers from the logged User
-            return $repoConsumer->findAllWithPagination($this->getUser(), $page, $limit);
+
+            // Get all product from repository and
+            return $repoConsumer->findAllById($this->getUser());
         });
 
-        // Create a group to cancel circule errors and get User in Consumer
-        $context = SerializationContext::create()->setGroups(['getConsumers']);
-        $jsonConsumerList = $serializer->serialize($consumerList, 'json', $context);
+        // Set offset/position for slice function in array listConsumer
+        $offset = ($page - 1) * $limit;
+
+        // Create CollectionRepresentation for pagination HateOAS function
+        $listConsumerShorted = new CollectionRepresentation(\array_slice($listConsumer, $offset, $limit));
+
+        // Set and cast to int the number of pages.
+        $nbPages = (int) ceil(\count($listConsumer) / $limit);
+
+        // Create pagination with HateOAS
+        $paginatedCollection = new PaginatedRepresentation(
+            $listConsumerShorted,
+            'app_allProduct', // route
+            [], // route parameters
+            $page,       // page number
+            $limit,      // limit
+            $nbPages,       // total pages
+            'page',  // page route parameter name, optional, defaults to 'page'
+            'limit', // limit route parameter name, optional, defaults to 'limit'
+            false,   // generate relative URIs, optional, defaults to `false`
+            \count($listConsumer)       // total collection size, optional, defaults to `null`
+        );
+
+        $jsonConsumerList = $serializer->serialize($paginatedCollection, 'json');
 
         return new JsonResponse($jsonConsumerList, Response::HTTP_OK, [], true);
     }
