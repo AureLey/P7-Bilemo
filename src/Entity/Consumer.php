@@ -19,6 +19,37 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use JMS\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
+use Hateoas\Configuration\Annotation as Hateoas;
+
+/**
+ * @Hateoas\Relation(
+ *      "self",
+ *      href = @Hateoas\Route(
+ *          "app_detailConsumer",
+ *          parameters = { "id" = "expr(object.getId())" }
+ *      ),
+ *      exclusion = @Hateoas\Exclusion(groups="getConsumers")
+ * )
+ *
+ *
+ * @Hateoas\Relation(
+ *      "update",
+ *      href = @Hateoas\Route(
+ *          "app_updateConsumer",
+ *          parameters = { "id" = "expr(object.getId())" },
+ *      ),
+ *      exclusion = @Hateoas\Exclusion(groups="getConsumers", excludeIf = "expr(not is_granted('EDIT',object))"),
+ * )
+ * @Hateoas\Relation(
+ *      "delete",
+ *      href = @Hateoas\Route(
+ *          "app_deleteConsumer",
+ *          parameters = { "id" = "expr(object.getId())" },
+ *      ),
+ *      exclusion = @Hateoas\Exclusion(groups="getConsumers", excludeIf = "expr(not is_granted('DELETE',object))"),
+ * )
+ *
+ */
 
 #[ORM\Entity(repositoryClass: ConsumerRepository::class)]
 class Consumer
@@ -49,12 +80,14 @@ class Consumer
      * @var \DateTime
      */
     #[Gedmo\Timestampable(on: 'create')]
+    #[Groups(['getConsumers'])]
     #[ORM\Column(name: 'created', type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $createdAt;
 
     /**
      * @var \DateTime
      */
+    #[Groups(['getConsumers'])]
     #[Gedmo\Timestampable(on: 'update')]
     #[ORM\Column(name: 'updated', type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $updatedAt;
