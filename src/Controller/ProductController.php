@@ -18,6 +18,8 @@ use App\Repository\ProductRepository;
 use Hateoas\Representation\CollectionRepresentation;
 use Hateoas\Representation\PaginatedRepresentation;
 use JMS\Serializer\SerializerInterface;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use OpenApi\Annotations as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,11 +27,38 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
+use Nelmio\ApiDocBundle\Annotation\Security;
+
 
 class ProductController extends AbstractController
 {
     /**
-     * GET ALL - getProducts.
+     * Cette méthode permet de récupérer l'ensemble des téléphones.
+     *
+     * @OA\Response(
+     *     response=200,
+     *     description="Retourne la liste des téléphones",
+     *     @OA\JsonContent(
+     *        type="array",
+     *        @OA\Items(ref=@Model(type=Product::class))
+     *     )
+     * )
+     *
+     * @OA\Parameter(
+     *     name="page",
+     *     in="query",
+     *     description="La page que l'on veut récupérer",
+     *     @OA\Schema(type="int")
+     * )
+     *
+     * @OA\Parameter(
+     *     name="limit",
+     *     in="query",
+     *     description="Le nombre d'éléments que l'on veut récupérer",
+     *     @OA\Schema(type="int")
+     * )
+     * @OA\Tag(name="Téléphones")
+     *
      */
     #[Route('api/products', name: 'app_allProduct', methods: ['GET'])]
     public function getProducts(
@@ -79,7 +108,19 @@ class ProductController extends AbstractController
     }
 
     /**
-     * GET - getDetailProduct.
+     * Cette méthode permet de récupérer un téléphone par son id.
+     *
+     * @OA\Response(
+     *     response=200,
+     *     description="Retourne le téléphone désiré",
+     *     @OA\JsonContent(
+     *        type="array",
+     *        @OA\Items(ref=@Model(type=Product::class))
+     *     )
+     * )
+     * 
+     * @OA\Tag(name="Téléphones")
+     *
      */
     #[Route('api/products/{id}', name: 'app_detailProduct', methods: ['GET'])]
     public function getDetailProduct(Product $product, SerializerInterface $serializer): JsonResponse

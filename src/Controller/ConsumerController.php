@@ -17,9 +17,12 @@ use App\Entity\Consumer;
 use App\Repository\ConsumerRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Hateoas\Representation\CollectionRepresentation;
+use Hateoas\Representation\OffsetRepresentation;
 use Hateoas\Representation\PaginatedRepresentation;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use OpenApi\Annotations as OA;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -34,7 +37,36 @@ use Symfony\Contracts\Cache\TagAwareCacheInterface;
 class ConsumerController extends AbstractController
 {
     /**
-     * GET ALL - getConsumers return all Consumers to the Client/User, FindBy( User_id).
+     * Cette méthode permet de récupérer l'ensemble des utilisateurs.
+     *
+     * @OA\Response(
+     *     response=200,
+     *     description="Retourne la liste des utilisateurs",
+     *
+     *     @OA\JsonContent(
+     *        type="array",
+     *
+     *        @OA\Items(ref=@Model(type=Consumer::class, groups={"getConsumers"}))
+     *     )
+     * )
+     *
+     * @OA\Parameter(
+     *     name="page",
+     *     in="query",
+     *     description="La page que l'on veut récupérer",
+     *
+     *     @OA\Schema(type="int")
+     * )
+     *
+     * @OA\Parameter(
+     *     name="limit",
+     *     in="query",
+     *     description="Le nombre d'utilisateurs que l'on veut récupérer",
+     *
+     *     @OA\Schema(type="int")
+     * )
+     *
+     * @OA\Tag(name="Utilisateurs")
      */
     #[Route('api/consumers', name: 'app_allConsumers', methods: ['GET'])]
     public function getConsumers(
@@ -59,7 +91,7 @@ class ConsumerController extends AbstractController
 
         // Create CollectionRepresentation for pagination HateOAS function
         $listConsumerShorted = new CollectionRepresentation(\array_slice($listConsumer, $offset, $limit));
-
+        
         // Set and cast to int the number of pages.
         $nbPages = (int) ceil(\count($listConsumer) / $limit);
 
@@ -76,7 +108,12 @@ class ConsumerController extends AbstractController
             false,   // generate relative URIs, optional, defaults to `false`
             \count($listConsumer)       // total collection size, optional, defaults to `null`
         );
-
+        $context = SerializationContext::create()->setGroups([
+            'Default',
+            'my_user_rel' => [
+                'getConsumers',
+            ],
+            ]);
         $jsonConsumerList = $serializer->serialize($paginatedCollection, 'json');
 
         return new JsonResponse($jsonConsumerList, Response::HTTP_OK, [], true);

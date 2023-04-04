@@ -50,26 +50,26 @@ class ConsumerRepository extends ServiceEntityRepository
         }
     }
 
-    public function findAllWithPagination($idUser, $page, $limit): array
+    // public function findAllWithPagination($idUser, $page, $limit): array
+    // {
+    //     // Create Query and make a request with params
+
+    //     $qb = $this->getEntityManager()->createQueryBuilder()            
+    //         ->select('c')
+    //         ->from('App\Entity\Consumer', 'c')
+    //         ->where('c.user = ?1')
+    //         ->setParameter('1', $idUser)
+    //         ->setFirstResult(($page - 1) * $limit)
+    //         ->setMaxResults($limit);
+
+    //     return $qb->getQuery()->getResult();
+    // }
+
+    public function findAllById($idUser):array
     {
         // Create Query and make a request with params
-
         $qb = $this->getEntityManager()->createQueryBuilder()            
             ->select('c')
-            ->from('App\Entity\Consumer', 'c')
-            ->where('c.user = ?1')
-            ->setParameter('1', $idUser)
-            ->setFirstResult(($page - 1) * $limit)
-            ->setMaxResults($limit);
-
-        return $qb->getQuery()->getResult();
-    }
-
-    public function findAllById($idUser)
-    {
-        // Create Query and make a request with params
-        $qb = $this->getEntityManager()->createQueryBuilder()            
-            ->select('c.id,c.firstname,c.lastname,c.updatedAt')
             ->from('App\Entity\Consumer', 'c')
             ->where('c.user = ?1')
             ->setParameter('1', $idUser);            
