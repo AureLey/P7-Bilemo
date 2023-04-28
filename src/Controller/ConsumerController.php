@@ -17,12 +17,9 @@ use App\Entity\Consumer;
 use App\Repository\ConsumerRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Hateoas\Representation\CollectionRepresentation;
-use Hateoas\Representation\OffsetRepresentation;
 use Hateoas\Representation\PaginatedRepresentation;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
-use Nelmio\ApiDocBundle\Annotation\Model;
-use OpenApi\Annotations as OA;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -37,36 +34,7 @@ use Symfony\Contracts\Cache\TagAwareCacheInterface;
 class ConsumerController extends AbstractController
 {
     /**
-     * Cette méthode permet de récupérer l'ensemble des utilisateurs.
-     *
-     * @OA\Response(
-     *     response=200,
-     *     description="Retourne la liste des utilisateurs",
-     *
-     *     @OA\JsonContent(
-     *        type="array",
-     *
-     *        @OA\Items(ref=@Model(type=Consumer::class, groups={"getConsumers"}))
-     *     )
-     * )
-     *
-     * @OA\Parameter(
-     *     name="page",
-     *     in="query",
-     *     description="La page que l'on veut récupérer",
-     *
-     *     @OA\Schema(type="int")
-     * )
-     *
-     * @OA\Parameter(
-     *     name="limit",
-     *     in="query",
-     *     description="Le nombre d'utilisateurs que l'on veut récupérer",
-     *
-     *     @OA\Schema(type="int")
-     * )
-     *
-     * @OA\Tag(name="Utilisateurs")
+     * List of consumers function and pagination système.
      */
     #[Route('api/consumers', name: 'app_allConsumers', methods: ['GET'])]
     public function getConsumers(
@@ -78,6 +46,7 @@ class ConsumerController extends AbstractController
         $page = (int) $request->get('page', 1);
         $limit = (int) $request->get('limit', 3);
 
+        // create id for cache
         $idCache = 'getConsumers-'.$page.'-'.$limit;
         $listConsumer = $cachePool->get($idCache, function (ItemInterface $item) use ($repoConsumer) {
             $item->tag('consumersCache');
@@ -91,7 +60,7 @@ class ConsumerController extends AbstractController
 
         // Create CollectionRepresentation for pagination HateOAS function
         $listConsumerShorted = new CollectionRepresentation(\array_slice($listConsumer, $offset, $limit));
-        
+
         // Set and cast to int the number of pages.
         $nbPages = (int) ceil(\count($listConsumer) / $limit);
 
@@ -108,19 +77,14 @@ class ConsumerController extends AbstractController
             false,   // generate relative URIs, optional, defaults to `false`
             \count($listConsumer)       // total collection size, optional, defaults to `null`
         );
-        $context = SerializationContext::create()->setGroups([
-            'Default',
-            'my_user_rel' => [
-                'getConsumers',
-            ],
-            ]);
+
         $jsonConsumerList = $serializer->serialize($paginatedCollection, 'json');
 
         return new JsonResponse($jsonConsumerList, Response::HTTP_OK, [], true);
     }
 
     /**
-     *  SHOW - getDetailConsumer return one Consumer informations, control by is_granted and Voter.
+     * Get consumer function.
      */
     #[Route('api/consumers/{id}', name: 'app_detailConsumer', methods: ['GET'])]
     #[Security("is_granted('VIEW', consumer)", statusCode: 403, message: 'Forbidden-Resource not found.')]
@@ -134,10 +98,10 @@ class ConsumerController extends AbstractController
     }
 
     /**
-     * UPDATE - updateConsumer. modified Consumer informations, control by is_granted and Voter.
+     * Update consumer function.
      */
-    #[Route('api/consumers/{id}', name: 'app_updateConsumer', methods: ['PATCH', 'PUT'])]
-    #[Security("is_granted('EDIT', currentConsumer)", statusCode: 403, message: 'Forbidden-Resource not found.')]
+    #[Route('api/consumers/{id}', name: 'app_updateConsumer', methods: ['PUT'])]
+    #[Security("is_granted('EDIT', currentConsumer)", statusCode: 403, message: 'Forbidden-Resource not found.')]    
     public function updateConsumer(
         Consumer $currentConsumer,
         Request $request,
@@ -169,11 +133,11 @@ class ConsumerController extends AbstractController
         $context = SerializationContext::create()->setGroups(['getConsumers']);
         $jsonConsumer = $serializer->serialize($currentConsumer, 'json', $context);
 
-        return new JsonResponse($jsonConsumer, Response::HTTP_NO_CONTENT);
+        return new JsonResponse($jsonConsumer, Response::HTTP_OK, [], true);
     }
 
     /**
-     * DELETE - deleteConsumer. Delete one Consumer from User, control by is_granted and Voter.
+     * Delete consumer function.
      */
     #[Route('api/consumers/{id}', name: 'app_deleteConsumer', methods: ['DELETE'])]
     #[Security("is_granted('DELETE', consumer)", statusCode: 403, message: 'Forbidden-Resource not found.')]
@@ -188,7 +152,7 @@ class ConsumerController extends AbstractController
     }
 
     /**
-     * POST - creationConsumer. Create one Consumer, control by is_granted and Voter.
+     * Creation consumer function.
      */
     #[Route('api/consumers', name: 'app_creationConsumer', methods: ['POST'])]
     public function creationConsumer(

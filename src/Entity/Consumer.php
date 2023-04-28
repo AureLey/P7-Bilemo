@@ -26,13 +26,22 @@ use JMS\Serializer\Annotation\Expose;
 /** 
  *
  * @Hateoas\Relation(
- *      "update",
+ *      "put",
  *      href = @Hateoas\Route(
  *          "app_updateConsumer",
  *          parameters = { "id" = "expr(object.getId())" },
  *      ),
  *      exclusion = @Hateoas\Exclusion(groups="getConsumers", excludeIf = "expr(not is_granted('EDIT',object))"),
  * )
+ * @Hateoas\Relation(
+ *      "patch",
+ *      href = @Hateoas\Route(
+ *          "app_updateConsumer",
+ *          parameters = { "id" = "expr(object.getId())" },
+ *      ),
+ *      exclusion = @Hateoas\Exclusion(groups="getConsumers", excludeIf = "expr(not is_granted('EDIT',object))"),
+ * )
+ * 
  * @Hateoas\Relation(
  *      "delete",
  *      href = @Hateoas\Route(
@@ -56,14 +65,14 @@ class Consumer
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['getConsumers'])]
+    #[Groups(['getConsumers','create'])]
     #[Expose()]
     #[Assert\NotBlank(message: 'firstname is necessary')]
     #[Assert\Length(min: 6, max: 255, minMessage: 'First name must be a minimum of 6 for length', maxMessage: 'First name must be 255 maximum for length')]
     private ?string $firstname = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['getConsumers'])]
+    #[Groups(['getConsumers','create'])]
     #[Expose()]
     #[Assert\NotBlank(message: 'Lastname is necessary')]
     #[Assert\Length(min: 6, max: 255, minMessage: 'Lastname must be a minimum of 6 for length', maxMessage: 'Lastname must be 255 maximum for length')]

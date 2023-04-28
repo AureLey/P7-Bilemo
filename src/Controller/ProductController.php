@@ -32,34 +32,7 @@ use Nelmio\ApiDocBundle\Annotation\Security;
 
 class ProductController extends AbstractController
 {
-    /**
-     * Cette méthode permet de récupérer l'ensemble des téléphones.
-     *
-     * @OA\Response(
-     *     response=200,
-     *     description="Retourne la liste des téléphones",
-     *     @OA\JsonContent(
-     *        type="array",
-     *        @OA\Items(ref=@Model(type=Product::class))
-     *     )
-     * )
-     *
-     * @OA\Parameter(
-     *     name="page",
-     *     in="query",
-     *     description="La page que l'on veut récupérer",
-     *     @OA\Schema(type="int")
-     * )
-     *
-     * @OA\Parameter(
-     *     name="limit",
-     *     in="query",
-     *     description="Le nombre d'éléments que l'on veut récupérer",
-     *     @OA\Schema(type="int")
-     * )
-     * @OA\Tag(name="Téléphones")
-     *
-     */
+
     #[Route('api/products', name: 'app_allProduct', methods: ['GET'])]
     public function getProducts(
         Request $request,
@@ -71,6 +44,7 @@ class ProductController extends AbstractController
         $page = (int) $request->get('page', 1);
         $limit = (int) $request->get('limit', 3);
 
+        //create id for cache
         $idCache = 'getProducts-'.$page.'-'.$limit;
         $listProduct = $cachePool->get($idCache, function (ItemInterface $item) use ($repoProduct) {
             $item->tag('productsCache');
@@ -107,21 +81,6 @@ class ProductController extends AbstractController
         return new JsonResponse($jsonProductList, Response::HTTP_OK, [], true);
     }
 
-    /**
-     * Cette méthode permet de récupérer un téléphone par son id.
-     *
-     * @OA\Response(
-     *     response=200,
-     *     description="Retourne le téléphone désiré",
-     *     @OA\JsonContent(
-     *        type="array",
-     *        @OA\Items(ref=@Model(type=Product::class))
-     *     )
-     * )
-     * 
-     * @OA\Tag(name="Téléphones")
-     *
-     */
     #[Route('api/products/{id}', name: 'app_detailProduct', methods: ['GET'])]
     public function getDetailProduct(Product $product, SerializerInterface $serializer): JsonResponse
     {
