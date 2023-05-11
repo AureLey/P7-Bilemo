@@ -45,10 +45,10 @@ class CacheService
     {
         $this->cachePool->get($idCache, function (ItemInterface $item) use ( $repository,$tag) {
             $item->tag($tag);
-            echo ("debug- N'est pas dans le cache");
+            //echo ("debug- N'est pas dans le cache");
         }
         );
-
+        // Testing if the paramter userid is required, to get all Consumers from the connected CustomerUser
         if (null !== $userId) {
             return $repository->findAllById($userId);
         }
