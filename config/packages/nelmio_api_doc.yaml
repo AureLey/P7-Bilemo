@@ -268,11 +268,11 @@ nelmio_api_doc:
             createdAt:
               type: string
               format: date-time
-              default: 2023-04-17T10:27:19+00:00
+              default: "2023-04-17T10:27:19+00:00"
             updatedAt:
               type: string
               format: date-time
-              default: 2023-04-17T10:27:19+00:00
+              default: "2023-04-17T10:27:19+00:00"
               
         # CONSUMER CREATION 
         Consumer-creation:

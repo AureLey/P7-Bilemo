@@ -14,25 +14,32 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Entity\Product;
+use App\Service\CacheService;
+use OpenApi\Annotations as OA;
 use App\Repository\ProductRepository;
-use Hateoas\Representation\CollectionRepresentation;
-use Hateoas\Representation\PaginatedRepresentation;
 use JMS\Serializer\SerializerInterface;
 use Nelmio\ApiDocBundle\Annotation\Model;
-use OpenApi\Annotations as OA;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Contracts\Cache\ItemInterface;
+use Nelmio\ApiDocBundle\Annotation\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Contracts\Cache\ItemInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Hateoas\Representation\PaginatedRepresentation;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
-use Nelmio\ApiDocBundle\Annotation\Security;
+use Hateoas\Representation\CollectionRepresentation;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 
 class ProductController extends AbstractController
 {
 
+    private CacheService $cacheService;
+
+    public function __construct(CacheService $cacheService)
+    {
+        $this->cacheService = $cacheService;
+    }
     #[Route('api/products', name: 'app_allProduct', methods: ['GET'])]
     public function getProducts(
         Request $request,
@@ -44,14 +51,9 @@ class ProductController extends AbstractController
         $page = (int) $request->get('page', 1);
         $limit = (int) $request->get('limit', 3);
 
-        //create id for cache
-        $idCache = 'getProducts-'.$page.'-'.$limit;
-        $listProduct = $cachePool->get($idCache, function (ItemInterface $item) use ($repoProduct) {
-            $item->tag('productsCache');
-
-            // Get all product from repository and
-            return $repoProduct->findAll();
-        });
+        // Cache 
+        $idCache = $this->cacheService->idCacheCreation([PRODUCT::CACHEPRODUCT, $page, $limit]);
+        $listProduct = $this->cacheService->cachePoolCreation($idCache, $repoProduct, PRODUCT::CACHEPRODUCT, null);
 
         // Set offset/position for slice function in array listProduct
         $offset = ($page - 1) * $limit;

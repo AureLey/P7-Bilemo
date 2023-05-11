@@ -28,32 +28,34 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
-use Symfony\Contracts\Cache\ItemInterface;
-use Symfony\Contracts\Cache\TagAwareCacheInterface;
+use App\Service\CacheService;
 
 class ConsumerController extends AbstractController
 {
+    private SerializerInterface $serializer;
+    private ValidatorInterface $validator;
+    private CacheService $cacheService;
+
+    public function __construct(SerializerInterface $serializer, ValidatorInterface $validator, CacheService $cacheService)
+    {
+        $this->serializer = $serializer;
+        $this->validator = $validator;
+        $this->cacheService = $cacheService;
+    }
+
     /**
      * List of consumers function and pagination système.
      */
     #[Route('api/consumers', name: 'app_allConsumers', methods: ['GET'])]
-    public function getConsumers(
-        Request $request,
-        ConsumerRepository $repoConsumer,
-        SerializerInterface $serializer,
-        TagAwareCacheInterface $cachePool): JsonResponse
+    public function getConsumers(Request $request, ConsumerRepository $repoConsumer): JsonResponse
     {
         $page = (int) $request->get('page', 1);
         $limit = (int) $request->get('limit', 3);
 
-        // create id for cache
-        $idCache = 'getConsumers-'.$page.'-'.$limit;
-        $listConsumer = $cachePool->get($idCache, function (ItemInterface $item) use ($repoConsumer) {
-            $item->tag('consumersCache');
-
-            // Get all product from repository and
-            return $repoConsumer->findAllById($this->getUser());
-        });
+        // Cache 
+        $idCache = $this->cacheService->idCacheCreation([CONSUMER::CACHECONSUMER, $page, $limit]);
+        $listConsumer = $this->cacheService->cachePoolCreation($idCache, $repoConsumer, CONSUMER::CACHECONSUMER, $this->getUser());
+       
 
         // Set offset/position for slice function in array listConsumer
         $offset = ($page - 1) * $limit;
@@ -67,7 +69,7 @@ class ConsumerController extends AbstractController
         // Create pagination with HateOAS
         $paginatedCollection = new PaginatedRepresentation(
             $listConsumerShorted,
-            'app_allProduct', // route
+            'app_allConsumers', // route
             [], // route parameters
             $page,       // page number
             $limit,      // limit
@@ -78,7 +80,7 @@ class ConsumerController extends AbstractController
             \count($listConsumer)       // total collection size, optional, defaults to `null`
         );
 
-        $jsonConsumerList = $serializer->serialize($paginatedCollection, 'json');
+        $jsonConsumerList = $this->serializer->serialize($paginatedCollection, 'json');
 
         return new JsonResponse($jsonConsumerList, Response::HTTP_OK, [], true);
     }
@@ -88,11 +90,11 @@ class ConsumerController extends AbstractController
      */
     #[Route('api/consumers/{id}', name: 'app_detailConsumer', methods: ['GET'])]
     #[Security("is_granted('VIEW', consumer)", statusCode: 403, message: 'Forbidden-Resource not found.')]
-    public function getDetailConsumer(Consumer $consumer, SerializerInterface $serializer): JsonResponse
+    public function getDetailConsumer(Consumer $consumer): JsonResponse
     {
-        // Create a group to cancel circule errors and get User in Consumer
+        // var getConsumers represent a group in class Consumer to get specify informations and cancel circule errors
         $context = SerializationContext::create()->setGroups(['getConsumers']);
-        $jsonConsumer = $serializer->serialize($consumer, 'json', $context);
+        $jsonConsumer = $this->serializer->serialize($consumer, 'json', $context);
 
         return new JsonResponse($jsonConsumer, Response::HTTP_OK, [], true);
     }
@@ -101,28 +103,23 @@ class ConsumerController extends AbstractController
      * Update consumer function.
      */
     #[Route('api/consumers/{id}', name: 'app_updateConsumer', methods: ['PUT'])]
-    #[Security("is_granted('EDIT', currentConsumer)", statusCode: 403, message: 'Forbidden-Resource not found.')]    
-    public function updateConsumer(
-        Consumer $currentConsumer,
-        Request $request,
-        SerializerInterface $serializer,
-        EntityManagerInterface $entityManager,
-        ValidatorInterface $validator,
-        TagAwareCacheInterface $cache): JsonResponse
+    #[Security("is_granted('EDIT', currentConsumer)", statusCode: 403, message: 'Forbidden-Resource not found.')]
+    public function updateConsumer(Consumer $currentConsumer,Request $request,EntityManagerInterface $entityManager): JsonResponse
     {
         // Clear cache to refresh data about this modification
-        $cache->invalidateTags(['consumersCache']);
+        $this->cacheService->idDeleting(['consumersCache']);
+        
         // Create newConsummer with new values
-        $newConsumer = $serializer->deserialize($request->getContent(), Consumer::class, 'json');
+        $newConsumer = $this->serializer->deserialize($request->getContent(), Consumer::class, 'json');
 
         // Modify currentConsumer with new values from newConsummer
         $currentConsumer->setLastname($newConsumer->getLastname())
                         ->setFirstname($newConsumer->getFirstname());
 
         // Checking errors
-        $errors = $validator->validate($currentConsumer);
+        $errors = $this->validator->validate($currentConsumer);
         if ($errors->count() > 0) {
-            return new JsonResponse($serializer->serialize($errors, 'json'), JsonResponse::HTTP_BAD_REQUEST, [], true);
+            return new JsonResponse($this->serializer->serialize($errors, 'json'), JsonResponse::HTTP_BAD_REQUEST, [], true);
         }
 
         // EntityManager
@@ -131,7 +128,7 @@ class ConsumerController extends AbstractController
 
         // Create a group to cancel circule errors and get User in Consumer
         $context = SerializationContext::create()->setGroups(['getConsumers']);
-        $jsonConsumer = $serializer->serialize($currentConsumer, 'json', $context);
+        $jsonConsumer = $this->serializer->serialize($currentConsumer, 'json', $context);
 
         return new JsonResponse($jsonConsumer, Response::HTTP_OK, [], true);
     }
@@ -141,9 +138,10 @@ class ConsumerController extends AbstractController
      */
     #[Route('api/consumers/{id}', name: 'app_deleteConsumer', methods: ['DELETE'])]
     #[Security("is_granted('DELETE', consumer)", statusCode: 403, message: 'Forbidden-Resource not found.')]
-    public function deleteConsumer(Consumer $consumer, EntityManagerInterface $entityManager, TagAwareCacheInterface $cache): JsonResponse
+    public function deleteConsumer(Consumer $consumer, EntityManagerInterface $entityManager): JsonResponse
     {
-        $cache->invalidateTags(['consumersCache']);
+        // Clear cache to refresh data about this modification
+        $this->cacheService->idDeleting(['consumersCache']);
         // EntityManager
         $entityManager->remove($consumer);
         $entityManager->flush();
@@ -157,20 +155,18 @@ class ConsumerController extends AbstractController
     #[Route('api/consumers', name: 'app_creationConsumer', methods: ['POST'])]
     public function creationConsumer(
         Request $request,
-        SerializerInterface $serializer,
         EntityManagerInterface $entityManager,
-        UrlGeneratorInterface $urlGenerator,
-        ValidatorInterface $validator): JsonResponse
+        UrlGeneratorInterface $urlGenerator): JsonResponse
     {
         // Deserialize infos from the request, create Consumer and setUser is logged User
-        $consumer = $serializer->deserialize($request->getContent(), Consumer::class, 'json');
+        $consumer = $this->serializer->deserialize($request->getContent(), Consumer::class, 'json');
         $user = $this->getUser();
         $consumer->setUser($user);
 
         // Checking errors
-        $errors = $validator->validate($consumer);
+        $errors = $this->validator->validate($consumer);
         if ($errors->count() > 0) {
-            return new JsonResponse($serializer->serialize($errors, 'json'), JsonResponse::HTTP_BAD_REQUEST, [], true);
+            return new JsonResponse($this->serializer->serialize($errors, 'json'), JsonResponse::HTTP_BAD_REQUEST, [], true);
         }
 
         // EntityManager
@@ -179,11 +175,12 @@ class ConsumerController extends AbstractController
 
         // Create a group to cancel circule errors and get User in Consumer
         $context = SerializationContext::create()->setGroups(['getConsumers']);
-        $jsonConsumer = $serializer->serialize($consumer, 'json', $context);
+        $jsonConsumer = $this->serializer->serialize($consumer, 'json', $context);
 
         // Create link with the new Consumer
         $location = $urlGenerator->generate('app_detailConsumer', ['id' => $consumer->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
 
         return new JsonResponse($jsonConsumer, Response::HTTP_CREATED, ['Location' => $location], true);
     }
+
 }

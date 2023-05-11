@@ -57,6 +57,9 @@ use JMS\Serializer\Annotation\Expose;
 #[ORM\Entity(repositoryClass: ConsumerRepository::class)]
 class Consumer
 {
+    // Represent cache var in controller Consumer
+    Const CACHECONSUMER = "cacheConsumerTag";
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -69,6 +72,11 @@ class Consumer
     #[Expose()]
     #[Assert\NotBlank(message: 'firstname is necessary')]
     #[Assert\Length(min: 6, max: 255, minMessage: 'First name must be a minimum of 6 for length', maxMessage: 'First name must be 255 maximum for length')]
+    #[Assert\Regex(
+        pattern: '/\d/',
+        match: false,
+        message: 'Firstname cannot contain a number',
+    )]
     private ?string $firstname = null;
 
     #[ORM\Column(length: 255)]
@@ -76,6 +84,11 @@ class Consumer
     #[Expose()]
     #[Assert\NotBlank(message: 'Lastname is necessary')]
     #[Assert\Length(min: 6, max: 255, minMessage: 'Lastname must be a minimum of 6 for length', maxMessage: 'Lastname must be 255 maximum for length')]
+    #[Assert\Regex(
+        pattern: '/\d/',
+        match: false,
+        message: 'Firstname cannot contain a number',
+    )]
     private ?string $lastname = null;
 
     #[ORM\ManyToOne(inversedBy: 'consumers')]
