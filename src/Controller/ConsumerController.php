@@ -15,9 +15,9 @@ namespace App\Controller;
 
 use App\Entity\Consumer;
 use App\Repository\ConsumerRepository;
+use App\Service\CacheService;
+use App\Service\PaginationService;
 use Doctrine\ORM\EntityManagerInterface;
-use Hateoas\Representation\CollectionRepresentation;
-use Hateoas\Representation\PaginatedRepresentation;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
@@ -28,19 +28,20 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
-use App\Service\CacheService;
 
 class ConsumerController extends AbstractController
 {
     private SerializerInterface $serializer;
     private ValidatorInterface $validator;
     private CacheService $cacheService;
+    private PaginationService $paginationService;
 
-    public function __construct(SerializerInterface $serializer, ValidatorInterface $validator, CacheService $cacheService)
+    public function __construct(SerializerInterface $serializer, ValidatorInterface $validator, CacheService $cacheService, PaginationService $paginationService)
     {
         $this->serializer = $serializer;
         $this->validator = $validator;
         $this->cacheService = $cacheService;
+        $this->paginationService = $paginationService;
     }
 
     /**
@@ -49,37 +50,17 @@ class ConsumerController extends AbstractController
     #[Route('api/consumers', name: 'app_allConsumers', methods: ['GET'])]
     public function getConsumers(Request $request, ConsumerRepository $repoConsumer): JsonResponse
     {
-        $page = (int) $request->get('page', 1);
-        $limit = (int) $request->get('limit', 3);
+        $page = (int) $request->get('page', PAGINATIONSERVICE::DEFAULTPAGE);
+        $limit = (int) $request->get('limit', PAGINATIONSERVICE::LIMITELEMENT);
+        $route = $request->attributes->get('_route');
 
-        // Cache 
+        // Cache
         $idCache = $this->cacheService->idCacheCreation([CONSUMER::CACHECONSUMER, $page, $limit]);
         $listConsumer = $this->cacheService->cachePoolCreation($idCache, $repoConsumer, CONSUMER::CACHECONSUMER, $this->getUser());
-       
 
-        // Set offset/position for slice function in array listConsumer
-        $offset = ($page - 1) * $limit;
+        $paginatedCollection = $this->paginationService->paginationCreation($page, $limit, $listConsumer, $route);
 
-        // Create CollectionRepresentation for pagination HateOAS function
-        $listConsumerShorted = new CollectionRepresentation(\array_slice($listConsumer, $offset, $limit));
-
-        // Set and cast to int the number of pages.
-        $nbPages = (int) ceil(\count($listConsumer) / $limit);
-
-        // Create pagination with HateOAS
-        $paginatedCollection = new PaginatedRepresentation(
-            $listConsumerShorted,
-            'app_allConsumers', // route
-            [], // route parameters
-            $page,       // page number
-            $limit,      // limit
-            $nbPages,       // total pages
-            'page',  // page route parameter name, optional, defaults to 'page'
-            'limit', // limit route parameter name, optional, defaults to 'limit'
-            false,   // generate relative URIs, optional, defaults to `false`
-            \count($listConsumer)       // total collection size, optional, defaults to `null`
-        );
-
+        // Serialize HateOAS paginatedCollection
         $jsonConsumerList = $this->serializer->serialize($paginatedCollection, 'json');
 
         return new JsonResponse($jsonConsumerList, Response::HTTP_OK, [], true);
@@ -104,11 +85,11 @@ class ConsumerController extends AbstractController
      */
     #[Route('api/consumers/{id}', name: 'app_updateConsumer', methods: ['PUT'])]
     #[Security("is_granted('EDIT', currentConsumer)", statusCode: 403, message: 'Forbidden-Resource not found.')]
-    public function updateConsumer(Consumer $currentConsumer,Request $request,EntityManagerInterface $entityManager): JsonResponse
+    public function updateConsumer(Consumer $currentConsumer, Request $request, EntityManagerInterface $entityManager): JsonResponse
     {
         // Clear cache to refresh data about this modification
-        $this->cacheService->idDeleting(['consumersCache']);
-        
+        $this->cacheService->idDeleting([CONSUMER::CACHECONSUMER]);
+
         // Create newConsummer with new values
         $newConsumer = $this->serializer->deserialize($request->getContent(), Consumer::class, 'json');
 
@@ -141,7 +122,7 @@ class ConsumerController extends AbstractController
     public function deleteConsumer(Consumer $consumer, EntityManagerInterface $entityManager): JsonResponse
     {
         // Clear cache to refresh data about this modification
-        $this->cacheService->idDeleting(['consumersCache']);
+        $this->cacheService->idDeleting([CONSUMER::CACHECONSUMER]);
         // EntityManager
         $entityManager->remove($consumer);
         $entityManager->flush();
@@ -182,5 +163,4 @@ class ConsumerController extends AbstractController
 
         return new JsonResponse($jsonConsumer, Response::HTTP_CREATED, ['Location' => $location], true);
     }
-
 }
