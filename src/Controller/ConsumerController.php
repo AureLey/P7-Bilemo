@@ -40,8 +40,8 @@ class ConsumerController extends AbstractController
 
     private CacheService $cacheService;
 
-    private PaginationService $paginationService;    
-
+    private PaginationService $paginationService;
+    
     public function __construct(SerializerInterface $serializer, ValidatorInterface $validator, CacheService $cacheService, PaginationService $paginationService)
     {
         $this->serializer = $serializer;
@@ -50,7 +50,6 @@ class ConsumerController extends AbstractController
         $this->paginationService = $paginationService;
 
     }
-    
 
     /**
      * getConsumers, List of consumers function and pagination système.

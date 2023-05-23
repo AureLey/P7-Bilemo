@@ -47,8 +47,8 @@ class AppFixtures extends Fixture
         // Creation of Users.
         for ($i = 0; $i < 4; ++$i) {
             $user = new CustomerUser();
-            $user->setemail('CustomerUser'.$i.'@gmail.com');
-            $user->setPassword($this->userPasswordHasher->hashPassword($user, 'CustomerUser'.$i));
+            $user->setemail('customeruser'.$i.'@gmail.com');
+            $user->setPassword($this->userPasswordHasher->hashPassword($user, 'customeruser'.$i));
             $user->setRoles(['ROLE_USER']);
             $manager->persist($user);
 
@@ -56,8 +56,8 @@ class AppFixtures extends Fixture
             $nbConsumers = rand(4, 9);
             for ($j = 0; $j < $nbConsumers; ++$j) {
                 $consumer = new Consumer();
-                $consumer->setFirstname('customerUserFirstname'.$j)
-                         ->setLastname('customerUserLastname'.$j)
+                $consumer->setFirstname('customerUserFirstname')
+                         ->setLastname('customerUserLastname')
                          ->setUser($user);
 
                 $manager->persist($consumer);

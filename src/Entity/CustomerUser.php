@@ -126,7 +126,7 @@ class CustomerUser implements UserInterface, PasswordAuthenticatedUserInterface
      */
     public function eraseCredentials()
     {
-        // If you store any temporary, sensitive data on the user, clear it here
+        // If you store any temporary, sensitive data on the user, clear it here.
         // $this->plainPassword = null;
     }
 
@@ -151,7 +151,7 @@ class CustomerUser implements UserInterface, PasswordAuthenticatedUserInterface
     public function removeConsumer(Consumer $consumer): self
     {
         if ($this->consumers->removeElement($consumer)) {
-            // set the owning side to null (unless already changed)
+            // Set the owning side to null (unless already changed).
             if ($consumer->getUser() === $this) {
                 $consumer->setUser(null);
             }
