@@ -50,17 +50,4 @@ class ProductRepository extends ServiceEntityRepository
         }
     }
 
-    public function findAllWithPagination($page, $limit):Array
-    {
-        // Create Query and make a request with params
-
-        $qb = $this->getEntityManager()->createQueryBuilder()
-            ->select('p')
-            ->from('App\Entity\Product', 'p')            
-            ->setFirstResult(($page - 1) * $limit)
-            ->setMaxResults($limit);
-
-        return $qb->getQuery()->getResult();
-    }
-
 }

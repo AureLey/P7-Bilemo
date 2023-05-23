@@ -67,7 +67,7 @@ class ConsumerController extends AbstractController
     }
 
     /**
-     * Get consumer function.
+     * Get one consumer function.
      */
     #[Route('api/consumers/{id}', name: 'app_detailConsumer', methods: ['GET'])]
     #[Security("is_granted('VIEW', consumer)", statusCode: 403, message: 'Forbidden-Resource not found.')]

@@ -14,8 +14,8 @@ declare(strict_types=1);
 namespace App\DataFixtures;
 
 use App\Entity\Consumer;
-use App\Entity\Product;
 use App\Entity\CustomerUser;
+use App\Entity\Product;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -36,7 +36,7 @@ class AppFixtures extends Fixture
             $product = new Product();
             $product->setName('nameProduct'.$i);
             $product->setDescription('Lorem ipsum dolor sit amet, consectetur adipisicing elit. Consequatur, aspernatur.');
-            $product->setPrice(rand(100, 150) * $i);
+            $product->setPrice(rand(200, 450));
 
             $manager->persist($product);
         }
@@ -45,8 +45,8 @@ class AppFixtures extends Fixture
         // Creation of Users
         for ($i = 0; $i < 4; ++$i) {
             $user = new CustomerUser();
-            $user->setemail('user'.$i.'@gmail.com');
-            $user->setPassword($this->userPasswordHasher->hashPassword($user, 'user'.$i));
+            $user->setemail('CustomerUser'.$i.'@gmail.com');
+            $user->setPassword($this->userPasswordHasher->hashPassword($user, 'CustomerUser'.$i));
             $user->setRoles(['ROLE_USER']);
             $manager->persist($user);
 
@@ -54,8 +54,8 @@ class AppFixtures extends Fixture
             $nbConsumers = rand(4, 9);
             for ($j = 0; $j < $nbConsumers; ++$j) {
                 $consumer = new Consumer();
-                $consumer->setFirstname('userFirstname'.$j)
-                         ->setLastname('userLastname'.$j)
+                $consumer->setFirstname('customerUserFirstname'.$j)
+                         ->setLastname('customerUserLastname'.$j)
                          ->setUser($user);
 
                 $manager->persist($consumer);
