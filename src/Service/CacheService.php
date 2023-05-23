@@ -29,23 +29,31 @@ class CacheService
     {
         $this->cachePool = $cachePool;
     }
+    
 
     /**
-     * create id for cache, represent the request with this informations
+     * create id for cache, represent the request with this informations.
      */
     public function idCacheCreation(array $args): string
-    {        
-        return implode($args);// Join array elements with a string and create unique tag
+    {
+        return implode('', $args); // Join array elements with a string and create unique tag
     }
 
+   
     /**
-     * cachePoolCreation.
+     * cachePoolCreation
+     *
+     * @param  string $idCache
+     * @param  EntityRepository $repository
+     * @param  string $tag
+     * @param  CustomerUser $userId
+     * @return array
      */
     public function cachePoolCreation(string $idCache, EntityRepository $repository, string $tag, ?CustomerUser $userId): array
     {
-        $this->cachePool->get($idCache, function (ItemInterface $item) use ( $repository,$tag) {
+        $this->cachePool->get($idCache, function (ItemInterface $item) use ($tag) {
             $item->tag($tag);
-            //echo ("debug- N'est pas dans le cache");
+            // echo ("debug- N'est pas dans le cache");
         }
         );
         // Testing if the paramter userid is required, to get all Consumers from the connected CustomerUser
@@ -55,9 +63,9 @@ class CacheService
 
         return $repository->findAll();
     }
-    
+ 
     /**
-     * idDeleting
+     * idDeleting delete tag in cache
      *
      * @param  array $tag
      * @return void

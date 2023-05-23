@@ -29,7 +29,7 @@ use JMS\Serializer\Annotation\Expose;
  *      "put",
  *      href = @Hateoas\Route(
  *          "app_updateConsumer",
- *          parameters = { "id" = "expr(object.getId())" },
+ *          parameters = { "id" = "expr(object.getId())"},
  *      ),
  *      exclusion = @Hateoas\Exclusion(groups="getConsumers", excludeIf = "expr(not is_granted('EDIT',object))"),
  * )
@@ -37,7 +37,7 @@ use JMS\Serializer\Annotation\Expose;
  *      "patch",
  *      href = @Hateoas\Route(
  *          "app_updateConsumer",
- *          parameters = { "id" = "expr(object.getId())" },
+ *          parameters = { "id" = "expr(object.getId())"},
  *      ),
  *      exclusion = @Hateoas\Exclusion(groups="getConsumers", excludeIf = "expr(not is_granted('EDIT',object))"),
  * )
@@ -57,8 +57,8 @@ use JMS\Serializer\Annotation\Expose;
 #[ORM\Entity(repositoryClass: ConsumerRepository::class)]
 class Consumer
 {
-    // Represent cache var in controller Consumer
-    Const CACHECONSUMER = "cacheConsumerTag";
+    // Represent cache var in controller Consumer.
+    const CACHECONSUMER = "cacheConsumerTag";
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -68,7 +68,7 @@ class Consumer
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['getConsumers','create'])]
+    #[Groups(['getConsumers', 'create'])]
     #[Expose()]
     #[Assert\NotBlank(message: 'firstname is necessary')]
     #[Assert\Length(min: 6, max: 255, minMessage: 'First name must be a minimum of 6 for length', maxMessage: 'First name must be 255 maximum for length')]
@@ -80,7 +80,7 @@ class Consumer
     private ?string $firstname = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['getConsumers','create'])]
+    #[Groups(['getConsumers', 'create'])]
     #[Expose()]
     #[Assert\NotBlank(message: 'Lastname is necessary')]
     #[Assert\Length(min: 6, max: 255, minMessage: 'Lastname must be a minimum of 6 for length', maxMessage: 'Lastname must be 255 maximum for length')]

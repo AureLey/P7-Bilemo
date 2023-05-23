@@ -27,11 +27,13 @@ class AppFixtures extends Fixture
     public function __construct(UserPasswordHasherInterface $userPasswordHasher)
     {
         $this->userPasswordHasher = $userPasswordHasher;
+
     }
+    
 
     public function load(ObjectManager $manager): void
     {
-        // Creation of Products
+        // Creation of Products.
         for ($i = 0; $i < 20; ++$i) {
             $product = new Product();
             $product->setName('nameProduct'.$i);
@@ -42,7 +44,7 @@ class AppFixtures extends Fixture
         }
         // -------------------------------------------------
 
-        // Creation of Users
+        // Creation of Users.
         for ($i = 0; $i < 4; ++$i) {
             $user = new CustomerUser();
             $user->setemail('CustomerUser'.$i.'@gmail.com');
@@ -50,7 +52,7 @@ class AppFixtures extends Fixture
             $user->setRoles(['ROLE_USER']);
             $manager->persist($user);
 
-            // Creations of Consumers
+            // Creations of Consumers.
             $nbConsumers = rand(4, 9);
             for ($j = 0; $j < $nbConsumers; ++$j) {
                 $consumer = new Consumer();
