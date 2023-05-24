@@ -34,6 +34,10 @@ use Hateoas\Configuration\Annotation as Hateoas;
 #[ORM\Entity(repositoryClass: ProductRepository::class)]
 class Product
 {
+
+    // Represent cache var in controller Consumer.
+    const CACHEPRODUCT = "cacheProductTag";
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -49,6 +53,7 @@ class Product
 
     #[ORM\Column]
     private ?float $price = null;
+    
 
     public function getId(): ?int
     {

@@ -51,6 +51,7 @@ class CustomerUser implements UserInterface, PasswordAuthenticatedUserInterface
         $this->consumers = new ArrayCollection();
     }
 
+
     public function getId(): ?int
     {
         return $this->id;
@@ -92,7 +93,7 @@ class CustomerUser implements UserInterface, PasswordAuthenticatedUserInterface
     public function getRoles(): array
     {
         $roles = $this->roles;
-        // guarantee every user at least has ROLE_USER
+        // Guarantee every user at least has ROLE_USER
         $roles[] = 'ROLE_USER';
 
         return array_unique($roles);
@@ -125,7 +126,7 @@ class CustomerUser implements UserInterface, PasswordAuthenticatedUserInterface
      */
     public function eraseCredentials()
     {
-        // If you store any temporary, sensitive data on the user, clear it here
+        // If you store any temporary, sensitive data on the user, clear it here.
         // $this->plainPassword = null;
     }
 
@@ -150,7 +151,7 @@ class CustomerUser implements UserInterface, PasswordAuthenticatedUserInterface
     public function removeConsumer(Consumer $consumer): self
     {
         if ($this->consumers->removeElement($consumer)) {
-            // set the owning side to null (unless already changed)
+            // Set the owning side to null (unless already changed).
             if ($consumer->getUser() === $this) {
                 $consumer->setUser(null);
             }

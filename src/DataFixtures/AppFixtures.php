@@ -14,8 +14,8 @@ declare(strict_types=1);
 namespace App\DataFixtures;
 
 use App\Entity\Consumer;
-use App\Entity\Product;
 use App\Entity\CustomerUser;
+use App\Entity\Product;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -27,35 +27,37 @@ class AppFixtures extends Fixture
     public function __construct(UserPasswordHasherInterface $userPasswordHasher)
     {
         $this->userPasswordHasher = $userPasswordHasher;
+
     }
+    
 
     public function load(ObjectManager $manager): void
     {
-        // Creation of Products
+        // Creation of Products.
         for ($i = 0; $i < 20; ++$i) {
             $product = new Product();
             $product->setName('nameProduct'.$i);
             $product->setDescription('Lorem ipsum dolor sit amet, consectetur adipisicing elit. Consequatur, aspernatur.');
-            $product->setPrice(rand(100, 150) * $i);
+            $product->setPrice(rand(200, 450));
 
             $manager->persist($product);
         }
         // -------------------------------------------------
 
-        // Creation of Users
+        // Creation of Users.
         for ($i = 0; $i < 4; ++$i) {
             $user = new CustomerUser();
-            $user->setemail('user'.$i.'@gmail.com');
-            $user->setPassword($this->userPasswordHasher->hashPassword($user, 'user'.$i));
+            $user->setemail('customeruser'.$i.'@gmail.com');
+            $user->setPassword($this->userPasswordHasher->hashPassword($user, 'customeruser'.$i));
             $user->setRoles(['ROLE_USER']);
             $manager->persist($user);
 
-            // Creations of Consumers
+            // Creations of Consumers.
             $nbConsumers = rand(4, 9);
             for ($j = 0; $j < $nbConsumers; ++$j) {
                 $consumer = new Consumer();
-                $consumer->setFirstname('userFirstname'.$j)
-                         ->setLastname('userLastname'.$j)
+                $consumer->setFirstname('customerUserFirstname')
+                         ->setLastname('customerUserLastname')
                          ->setUser($user);
 
                 $manager->persist($consumer);
