@@ -38,7 +38,7 @@ php bin/console doctrine:fixtures:load
 ```
 php bin/console lexik:jwt:generate-keypair
 ```
-Your keys will land in config/jwt/private.pem and config/jwt/public.pem
+Your keys will land in config/jwt/private.pem and config/jwt/public.pem, an error can be triggered without Openssl on the computer
 
 ## Launch local server 
 ```
