@@ -1,0 +1,313 @@
+---
+nelmio_api_doc:
+  documentation:
+    info:
+      title: Bilemo
+      description: API-Rest Projet OC
+      version: 1.0.0
+    paths:
+      # SECTION LOGIN 
+      /api/login_check:
+
+        # POST Token JWT
+        post:
+          tags:
+            - Token
+          operationId: postCredentialsItem
+          summary: Permet d'obtenir le token JWT pour se logger.
+          requestBody:
+            description: Crée un nouveau token JWT
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/Credentials"
+          responses:
+            "200":
+              description: Récupère le token JWT
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/Token"
+            "400":
+              description: Bad Request
+            "401":
+              description: Invalid Credentials
+            "405":
+              description: Method Not Allowed
+      
+      # SECTION CRUD CONSUMER 
+      /api/consumers/{id}:
+
+        # GET CONSUMER
+        get:
+          summary: recherche le consumer par son id
+          tags:
+            - consumer
+          parameters:
+            - in: path
+              name: id
+              schema:
+                type: integer
+              required: true
+              description: retourne le consumer via son id
+          responses:
+            "200":
+              description: Retourne le consumer via son id
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/Consumer"
+            "400":
+              description: Bad Request
+            "401":
+              description: Invalid Credentials
+            "405":
+              description: Method Not Allowed
+
+        # PUT CONSUMER
+        put:
+          summary: modifie un consumer via son id
+          tags:
+            - consumer
+          parameters:
+            - in: path
+              name: id
+              schema:
+                type: integer
+              required: true
+              description: sélectionne le consumer via son id
+          requestBody:
+            description: mise à jour des données du consumer           
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/Consumer-creation"           
+          responses:
+            "200":
+              description: Récupère le token JWT
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/Consumer"
+            "400":
+              description: Bad Request
+            "405":
+              description: Method Not Allowed
+        
+        # DELETE CONSUMER
+        delete:
+          summary: supprime le consumer par son id
+          tags:
+            - consumer
+          parameters:
+            - in: path
+              name: id
+              schema:
+                type: integer
+              required: true
+              description: supprime le consumer via son id
+          responses:
+            "204":
+              description: Success - Retourne 204 No Content
+            "400":
+              description: Bad Request
+            "405":
+              description: Method Not Allowed
+
+      # SECTION CONSUMERS
+      /api/consumers:
+
+        # CONSUMER CREATION
+        post:
+          tags:
+            - consumer
+          summary: Ajoute un nouvel consumer
+          requestBody:
+            description: Remplir les champs utilisateurs
+            required: true
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/Consumer-creation"
+          responses:
+            "201":
+              description: successful operation
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/Consumer"
+        
+        # GET CONSUMERS
+        get:
+          summary: retourne la liste des consumers
+          tags:
+            - consumer
+          parameters:
+            - in: query
+              name: page
+              schema:
+                type: integer
+              required: true
+              description: retourne la page souhaitée
+            - in: query
+              name: limit
+              schema:
+                type: integer
+              required: true
+              description: retourne le nombre d'élèments souhaités
+          responses:
+            "200":
+              description: Récupère le produit
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/Consumer"
+            "400":
+              description: Bad Request
+            "405":
+              description: Method Not Allowed
+      
+      # SECTION PRODUCT
+      /api/products/{id}:
+
+        # GET ONE PRODUCT
+        get:
+          summary: recherche le produit via son id
+          tags:
+            - product
+          parameters:
+            - in: path
+              name: id
+              schema:
+                type: integer
+              required: true
+              description: retourne le produit via son id
+          responses:
+            "200":
+              description: Récupère le produit
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/Product"
+            "400":
+              description: Bad Request
+            "401":
+              description: Invalid Credentials
+            "405":
+              description: Method Not Allowed
+
+      # SECTION PRODUCTS
+      /api/products:
+
+        # GET PRODUCTS
+        get:
+          summary: retourne la liste des products
+          tags:
+            - product
+          parameters:
+            - in: query
+              name: page
+              schema:
+                type: integer
+              required: true
+              description: retourne la page souhaitée
+            - in: query
+              name: limit
+              schema:
+                type: integer
+              required: true
+              description: retourne le nombre d'élèments souhaités
+          responses:
+            "200":
+              description: Récupère le produit
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/Product"
+            "400":
+              description: Bad Request
+            "405":
+              description: Method Not Allowed
+
+    # COMPONENTS & SCHEMA
+    components:
+      schemas:
+
+        # JWT Token
+        Token:
+          type: object
+          properties:
+            token:
+              type: string
+              readOnly: true
+        
+        # CRENDENTIALS
+        Credentials:
+          type: object
+          properties:
+            username:
+              type: string
+              default: user@exemple.com
+            password:
+              type: string
+              default: password
+
+        # CONSUMER FULL- DESCRIPTION
+        Consumer:
+          type: object
+          properties:
+            id:
+              type: integer
+              default: 10
+            firstname:
+              type: string
+              default: firstname
+            lastname:
+              type: string
+              default: lastname
+            createdAt:
+              type: string
+              format: date-time
+              default: "2023-04-17T10:27:19+00:00"
+            updatedAt:
+              type: string
+              format: date-time
+              default: "2023-04-17T10:27:19+00:00"
+              
+        # CONSUMER CREATION 
+        Consumer-creation:
+          type: object
+          properties:
+            firstname:
+              type: string
+              default: firstname
+            lastname:
+              type: string
+              default: lastname
+
+        # PRODUCT FULL DESCRIPTION
+        Product:
+          type: object
+          properties:
+            id:
+              type: integer
+              default: 10
+            name:
+              type: string
+              default: product name
+            description:
+              type: string
+              default: description product
+            price:
+              type: number
+              default: 999.99
+      securitySchemes:
+        bearerAuth:
+          type: apiKey
+          in: header
+          name: Authorization
+    security:
+      - bearerAuth: []
+  areas:
+    path_patterns:
+      - ^/api(?!/doc$)
