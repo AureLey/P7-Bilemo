@@ -45,11 +45,16 @@ Your keys will land in config/jwt/private.pem and config/jwt/public.pem, an erro
 symfony server:start
 ```
 
-## Nelmio is use for documentation
+## Nelmio is used for documentation
 ```
-[symfony server:start](http://127.0.0.1:8000/api/doc)
+http://127.0.0.1:8000/api/doc
 ```
 if the local server is different your_address/api/doc
+
+### Online version
+1. Documentation by Swagger Editor [Doc by swagger ](https://aureley.github.io/P7-Bilemo/)
+
+2.  replace swagger petstore example by copy/import the file docs/Bilemo_doc_JSON in [Swagger editor](https://editor.swagger.io/)
 
 ## Default Credentials
 
